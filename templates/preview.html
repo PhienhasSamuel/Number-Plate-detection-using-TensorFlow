@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Capture Number Plate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e9f0f7;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        video, img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #0077cc;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+        .message {
+            margin: 15px 0;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Capture Number Plate</h1>
+        <video id="video" autoplay></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="preview-img" style="display:none;" alt="Captured Image" />
+        <br>
+        <button id="capture-btn">Capture</button>
+
+        <form id="capture-form" method="POST" action="{{ url_for('capture') }}">
+            <input type="hidden" name="image_data" id="image_data" />
+        </form>
+
+        <script>
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const previewImg = document.getElementById('preview-img');
+            const captureBtn = document.getElementById('capture-btn');
+            const imageDataInput = document.getElementById('image_data');
+            const captureForm = document.getElementById('capture-form');
+
+            // Access camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    alert("Cannot access camera: " + err);
+                });
+
+            captureBtn.addEventListener('click', () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const imageDataURL = canvas.toDataURL('image/jpeg');
+
+                // Show preview image
+                previewImg.src = imageDataURL;
+                previewImg.style.display = 'block';
+                video.style.display = 'none';
+
+                // Here you could send imageDataURL to backend using AJAX or form submission,
+                // but your current backend expects webcam capture via OpenCV, so skip actual send here.
+
+                alert('Image captured! Please click "Capture Image" on the main page to save and translate.');
+            });
+        </script>
+
+        <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+    </div>
+</body>
+</html>
